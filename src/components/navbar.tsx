@@ -43,7 +43,7 @@ export default function Navbar() {
   const isActive = (href: string) => pathname === href;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/70 bg-background">
+    <header className="sticky top-0 z-50 w-full border-b border-emerald-100 bg-[#E8F5EF] dark:border-slate-700 dark:bg-slate-900">
       <nav
         aria-label="Main navigation"
         className="mx-auto flex h-[60px] w-full max-w-7xl items-center justify-between px-3 sm:h-[68px] sm:px-6 lg:px-8"
@@ -126,33 +126,26 @@ export default function Navbar() {
             )}
           </Button>
 
-          {/* Login: desktop and tablet */}
-          <Button
-            asChild
-            className="hidden h-10 min-w-[92px] flex-nowrap items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-emerald-600 px-4 text-white shadow-sm hover:bg-emerald-700 sm:inline-flex"
+          {/* Desktop and tablet Login */}
+          <Link
+            href="/login"
+            className="hidden h-10 min-w-[92px] items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-emerald-600 px-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-700 sm:inline-flex"
           >
-            <Link
-              href="/login"
-              className="flex flex-nowrap items-center gap-2 whitespace-nowrap"
-            >
-              <LogIn className="size-4 shrink-0" aria-hidden="true" />
-              <span>Login</span>
-            </Link>
-          </Button>
+            <LogIn className="size-4 shrink-0" aria-hidden="true" />
+            <span>Login</span>
+          </Link>
 
           {/* Mobile menu */}
           <div className="shrink-0 md:hidden">
             <Sheet>
-              <SheetTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="size-8 rounded-lg sm:size-10 sm:rounded-xl"
-                  aria-label="Open navigation menu"
-                >
-                  <Menu className="size-4 sm:size-5" aria-hidden="true" />
-                </Button>
+              <SheetTrigger
+                aria-label="Open navigation menu"
+                className="inline-flex size-8 items-center justify-center rounded-lg border border-input bg-background sm:size-10 sm:rounded-xl"
+              >
+                <Menu
+                  className="size-4 sm:size-5"
+                  aria-hidden="true"
+                />
               </SheetTrigger>
 
               <SheetContent
@@ -178,9 +171,12 @@ export default function Navbar() {
                 </SheetHeader>
 
                 <div className="flex flex-col gap-2 pt-6">
+                  {/* Home */}
                   <Link
                     href="/"
-                    aria-current={pathname === "/" ? "page" : undefined}
+                    aria-current={
+                      pathname === "/" ? "page" : undefined
+                    }
                     className={`rounded-lg px-4 py-3 text-sm font-medium transition-colors hover:bg-muted ${
                       pathname === "/"
                         ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
@@ -190,6 +186,7 @@ export default function Navbar() {
                     Home
                   </Link>
 
+                  {/* Navigation links */}
                   {navigation.map((item) => {
                     const Icon = item.icon;
                     const active = isActive(item.href);
@@ -205,7 +202,10 @@ export default function Navbar() {
                             : "text-foreground"
                         }`}
                       >
-                        <Icon className="size-4" aria-hidden="true" />
+                        <Icon
+                          className="size-4"
+                          aria-hidden="true"
+                        />
                         {item.label}
                       </Link>
                     );
@@ -213,15 +213,14 @@ export default function Navbar() {
 
                   <div className="my-3 border-t" />
 
-                  <Button
-                    asChild
-                    className="w-full rounded-xl bg-emerald-600 text-white hover:bg-emerald-700"
+                  {/* Mobile Login */}
+                  <Link
+                    href="/login"
+                    className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
                   >
-                    <Link href="/login">
-                      <LogIn className="size-4" aria-hidden="true" />
-                      Login
-                    </Link>
-                  </Button>
+                    <LogIn className="size-4" aria-hidden="true" />
+                    Login
+                  </Link>
                 </div>
               </SheetContent>
             </Sheet>

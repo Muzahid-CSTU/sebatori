@@ -1,11 +1,9 @@
-import React from 'react';
+import Hero from "@/components/hero";
 
-const page = () => {
+export default function HomePage() {
   return (
-    <div>
-      
-    </div>
+    <main className="flex-1">
+      <Hero />
+    </main>
   );
-};
-
-export default page;
+}
