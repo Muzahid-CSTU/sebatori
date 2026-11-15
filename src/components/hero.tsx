@@ -23,7 +23,6 @@ export default function Hero() {
       <div className="mx-auto w-full max-w-7xl px-5 py-20 sm:px-8 lg:px-10">
         <div className="max-w-2xl">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/80 px-4 py-2 text-sm font-medium text-emerald-800 backdrop-blur-sm dark:border-emerald-800 dark:bg-slate-900/70 dark:text-emerald-300">
-            <HeartHandshake className="size-4" />
             Make a Difference Together
           </div>
 
