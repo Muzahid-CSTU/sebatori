@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
+
 import {
   CalendarDays,
   LogIn,
@@ -18,10 +19,11 @@ import {
   ClipboardList,
   CalendarCheck,
 } from "lucide-react";
-import { toast } from "sonner";
 
+import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
+
 import {
   Sheet,
   SheetContent,
@@ -63,6 +65,7 @@ export default function Navbar() {
 
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
   const { data: session, isPending } = authClient.useSession();
@@ -71,6 +74,12 @@ export default function Navbar() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Close profile dropdown and mobile menu on page change
+  useEffect(() => {
+    setProfileMenuOpen(false);
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   const isActive = (href: string) => pathname === href;
 
@@ -88,7 +97,10 @@ export default function Navbar() {
       }
 
       toast.success("Logged out successfully.");
+
+      setProfileMenuOpen(false);
       closeMobileMenu();
+
       router.push("/");
       router.refresh();
     } catch {
@@ -99,9 +111,11 @@ export default function Navbar() {
   };
 
   const profileImage =
-  user?.image ||
-  (user as typeof user & { photoURL?: string } | undefined)?.photoURL ||
-  null;
+    user?.image ||
+    (user as
+      | (typeof user & { photoURL?: string })
+      | undefined)?.photoURL ||
+    null;
 
   const displayName = user?.name || user?.email || "My Account";
 
@@ -130,6 +144,7 @@ export default function Navbar() {
             <span className="whitespace-nowrap text-sm font-extrabold leading-tight tracking-tight text-emerald-700 dark:text-emerald-400 sm:text-xl">
               SebaTori
             </span>
+
             <span className="whitespace-nowrap text-[7px] font-medium tracking-[0.1em] text-muted-foreground sm:text-[9px] sm:tracking-[0.12em]">
               COMMUNITY ACTION
             </span>
@@ -192,11 +207,17 @@ export default function Navbar() {
           {!isPending &&
             (user ? (
               <div className="hidden items-center gap-3 sm:flex">
-                <details className="group relative">
-                  <summary
+                {/* Profile Dropdown */}
+                <div className="relative">
+                  <button
+                    type="button"
                     title={displayName}
                     aria-label={`Profile menu for ${displayName}`}
-                    className="flex cursor-pointer list-none items-center gap-2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
+                    aria-expanded={profileMenuOpen}
+                    onClick={() =>
+                      setProfileMenuOpen((prev) => !prev)
+                    }
+                    className="flex cursor-pointer items-center gap-2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
                   >
                     {profileImage ? (
                       <img
@@ -212,35 +233,53 @@ export default function Navbar() {
                         <UserRound className="size-5" />
                       </span>
                     )}
-                  </summary>
+                  </button>
 
-                  <div className="invisible absolute right-0 top-full z-50 mt-2 w-56 translate-y-1 rounded-xl border bg-background p-2 opacity-0 shadow-lg transition-all group-open:visible group-open:translate-y-0 group-open:opacity-100">
-                    <div className="border-b px-3 py-2">
-                      <p className="truncate text-sm font-semibold">
-                        {displayName}
-                      </p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {user.email}
-                      </p>
-                    </div>
+                  {profileMenuOpen && (
+                    <>
+                      {/* Outside click overlay */}
+                      <button
+                        type="button"
+                        aria-label="Close profile menu"
+                        className="fixed inset-0 z-40 cursor-default"
+                        onClick={() => setProfileMenuOpen(false)}
+                      />
 
-                    {privateNavigation.map((item) => {
-                      const Icon = item.icon;
+                      {/* Dropdown content */}
+                      <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded-xl border bg-background p-2 shadow-lg">
+                        <div className="border-b px-3 py-2">
+                          <p className="truncate text-sm font-semibold">
+                            {displayName}
+                          </p>
 
-                      return (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors hover:bg-muted"
-                        >
-                          <Icon className="size-4" />
-                          {item.label}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </details>
+                          <p className="truncate text-xs text-muted-foreground">
+                            {user.email}
+                          </p>
+                        </div>
 
+                        {privateNavigation.map((item) => {
+                          const Icon = item.icon;
+
+                          return (
+                            <Link
+                              key={item.href}
+                              href={item.href}
+                              onClick={() =>
+                                setProfileMenuOpen(false)
+                              }
+                              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors hover:bg-muted"
+                            >
+                              <Icon className="size-4" />
+                              {item.label}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Logout */}
                 <Button
                   type="button"
                   variant="outline"
@@ -264,7 +303,10 @@ export default function Navbar() {
 
           {/* Mobile menu */}
           <div className="shrink-0 md:hidden">
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <Sheet
+              open={mobileMenuOpen}
+              onOpenChange={setMobileMenuOpen}
+            >
               <SheetTrigger
                 aria-label="Open navigation menu"
                 className="inline-flex size-8 items-center justify-center rounded-lg border border-input bg-background sm:size-10 sm:rounded-xl"
@@ -286,6 +328,7 @@ export default function Navbar() {
                         height={40}
                         className="size-10 rounded-lg object-contain"
                       />
+
                       <span className="text-lg font-bold text-emerald-700 dark:text-emerald-400">
                         SebaTori
                       </span>
@@ -353,6 +396,7 @@ export default function Navbar() {
                           <p className="truncate text-sm font-semibold">
                             {displayName}
                           </p>
+
                           <p className="truncate text-xs text-muted-foreground">
                             {user.email}
                           </p>
