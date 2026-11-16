@@ -1,4 +1,5 @@
-import Hero from "@/components/hero";
+import Hero from "@/components/home/hero";
+import RecentUpcomingEvents from "@/components/home/recent-upcoming-events";
 import { SocialAuthToast } from "@/components/social-auth-toast";
 
 export default function HomePage() {
@@ -6,6 +7,7 @@ export default function HomePage() {
     <main className="flex-1">
       <SocialAuthToast />
       <Hero />
+      <RecentUpcomingEvents />
     </main>
   );
 }

@@ -3,20 +3,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { CalendarDays } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
+import EventCard from "@/components/events/event-card";
+import type { Event } from "@/components/events/event-card";
 
 const API_URL = "http://localhost:8000";
-
-type Event = {
-  _id: string;
-  title: string;
-  description: string;
-  eventType: string;
-  thumbnail: string;
-  location: string;
-  eventDate: string;
-  createdBy: string;
-};
 
 export default function UpcomingEventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -43,16 +36,12 @@ export default function UpcomingEventsPage() {
 
         const upcomingEvents = data
           .filter((event) => event.eventDate.slice(0, 10) >= todayString)
-          .sort((a, b) =>
-            a.eventDate.localeCompare(b.eventDate)
-          );
+          .sort((a, b) => a.eventDate.localeCompare(b.eventDate));
 
         setEvents(upcomingEvents);
       } catch (err) {
         setError(
-          err instanceof Error
-            ? err.message
-            : "Something went wrong."
+          err instanceof Error ? err.message : "Something went wrong."
         );
       } finally {
         setLoading(false);
@@ -82,22 +71,20 @@ export default function UpcomingEventsPage() {
             </p>
           </div>
 
-          <Button
-            type="button"
-            onClick={() => {
-              window.location.href = "/create-event";
-            }}
-          >
-            Create an Event
+          <Button asChild={false} type="button">
+            <Link href="/create-event">Create an Event</Link>
           </Button>
         </div>
 
         {/* Loading */}
         {loading && (
-          <div className="py-16 text-center">
-            <p className="text-muted-foreground">
-              Loading upcoming events...
-            </p>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div
+                key={index}
+                className="h-80 animate-pulse rounded-xl border bg-muted"
+              />
+            ))}
           </div>
         )}
 
@@ -108,9 +95,7 @@ export default function UpcomingEventsPage() {
               Unable to Load Events
             </h2>
 
-            <p className="mt-2 text-sm text-destructive">
-              {error}
-            </p>
+            <p className="mt-2 text-sm text-destructive">{error}</p>
 
             <p className="mt-2 text-sm text-muted-foreground">
               Please make sure the backend server is running.
@@ -121,7 +106,9 @@ export default function UpcomingEventsPage() {
         {/* Empty State */}
         {!loading && !error && events.length === 0 && (
           <div className="rounded-xl border bg-card px-6 py-16 text-center">
-            <h2 className="text-xl font-semibold">
+            <CalendarDays className="mx-auto size-10 text-muted-foreground" />
+
+            <h2 className="mt-4 text-xl font-semibold">
               No Upcoming Events
             </h2>
 
@@ -130,14 +117,8 @@ export default function UpcomingEventsPage() {
               Be the first to organize one!
             </p>
 
-            <Button
-              type="button"
-              className="mt-6"
-              onClick={() => {
-                window.location.href = "/create-event";
-              }}
-            >
-              Create an Event
+            <Button asChild={false} className="mt-6">
+              <Link href="/create-event">Create an Event</Link>
             </Button>
           </div>
         )}
@@ -152,67 +133,7 @@ export default function UpcomingEventsPage() {
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {events.map((event) => (
-                <article
-                  key={event._id}
-                  className="group flex h-full flex-col overflow-hidden rounded-xl border bg-card shadow-sm transition-shadow hover:shadow-lg"
-                >
-                  {/* Thumbnail */}
-                  <div className="aspect-[16/10] overflow-hidden bg-muted">
-                    {event.thumbnail ? (
-                      <img
-                        src={event.thumbnail}
-                        alt={event.title}
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                        No image available
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Event Information */}
-                  <div className="flex flex-1 flex-col p-5">
-                    <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                      <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                        {event.eventType}
-                      </span>
-
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(
-                          `${event.eventDate.slice(0, 10)}T12:00:00`
-                        ).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
-                      </span>
-                    </div>
-
-                    <h2 className="text-xl font-semibold leading-snug">
-                      {event.title}
-                    </h2>
-
-                    <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-                      {event.description}
-                    </p>
-
-                    <p className="mt-4 flex items-start gap-2 text-sm text-muted-foreground">
-                      <span aria-hidden="true">📍</span>
-                      <span>{event.location}</span>
-                    </p>
-
-                    {/* View Event */}
-                    <div className="mt-auto pt-5">
-                      <Link
-                        href={`/events/${event._id}`}
-                        className="inline-flex h-9 w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-xs transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      >
-                        View Event
-                      </Link>
-                    </div>
-                  </div>
-                </article>
+                <EventCard key={event._id} event={event} />
               ))}
             </div>
           </>

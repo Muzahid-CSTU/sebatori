@@ -2,6 +2,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,6 +29,8 @@ const initialFormData = {
 };
 
 export default function CreateEventPage() {
+  const router = useRouter();
+
   const [formData, setFormData] = useState(initialFormData);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -47,6 +51,7 @@ export default function CreateEventPage() {
     setMessageType("");
 
     if (new Date(formData.eventDate) <= new Date()) {
+      toast.error("Please select a future event date.");
       setMessage("Please select a future event date.");
       setMessageType("error");
       return;
@@ -69,13 +74,22 @@ export default function CreateEventPage() {
         throw new Error(result.message || "Failed to create event.");
       }
 
-      setMessage("Event created successfully!");
-      setMessageType("success");
+      toast.success("Event created successfully!");
+
       setFormData(initialFormData);
+
+      setTimeout(() => {
+        router.push("/events");
+      }, 1000);
     } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : "Something went wrong."
-      );
+      const errorMessage =
+        error instanceof Error ? error.message : "Something went wrong.";
+
+      toast.error("Failed to create event", {
+        description: errorMessage,
+      });
+
+      setMessage(errorMessage);
       setMessageType("error");
     } finally {
       setLoading(false);
@@ -208,14 +222,10 @@ export default function CreateEventPage() {
             />
           </div>
 
-          {message && (
+          {message && messageType === "error" && (
             <p
-              role="status"
-              className={
-                messageType === "success"
-                  ? "text-sm font-medium text-green-600"
-                  : "text-sm font-medium text-destructive"
-              }
+              role="alert"
+              className="text-sm font-medium text-destructive"
             >
               {message}
             </p>
