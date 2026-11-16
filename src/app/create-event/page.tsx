@@ -138,7 +138,7 @@ export default function CreateEventPage() {
             <Select
               value={formData.eventType}
               onValueChange={(value) =>
-                setFormData({ ...formData, eventType: value })
+                setFormData({ ...formData, eventType: value ?? "" })
               }
             >
               <SelectTrigger id="eventType" className="w-full">

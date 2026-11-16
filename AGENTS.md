@@ -26,10 +26,19 @@ Baseline lint is currently red on `src/components/navbar.tsx` (`react-hooks/set-
 
 ## Architecture
 
-- Routes: `src/app` (`layout.tsx` holds fonts, metadata, `ThemeProvider`, `Navbar`; `page.tsx` renders `Hero`). Alias `@/*` → `src/*`.
+- App shell: `src/app` (`layout.tsx` holds fonts, metadata, `ThemeProvider`, `Navbar`, `Toaster`; `page.tsx` renders `Hero`). Alias `@/*` → `src/*`.
 - `src/components/` = page sections (`navbar`, `hero`); `src/components/ui/` = shadcn primitives.
-- Only `/` exists. Navbar/hero link to `/events` and `/login`, which are not implemented yet.
+- Routes: `/`, `/events`, `/events/[id]`, `/create-event`, `/signup`. `/login` is linked from the navbar but not implemented yet.
 - Next 16 deltas that bite: `params`/`searchParams` are Promises, route typing uses the global `PageProps<'/path'>` / `LayoutProps<'/path'>` helpers (no import — see `layout.tsx`), and `middleware.ts` is now `proxy.ts`.
+
+## Auth
+
+- Better Auth with email + password and the MongoDB adapter: server config `src/lib/auth.ts`, browser client `src/lib/auth-client.ts`, handler `src/app/api/auth/[...all]/route.ts`.
+- `.env` (gitignored) needs `MONGODB_URI` (the same database as `../server`) and `BETTER_AUTH_SECRET`. Without `MONGODB_URI`, every `/api/auth/*` request returns 500.
+- Signup password rules live in two places: uppercase/lowercase checks are client-side in `src/app/signup/signup-form.tsx`, while the 6-character minimum is server-side via `emailAndPassword.minPasswordLength: 6` in `src/lib/auth.ts` (Better Auth defaults to 8).
+- `/signup` is a server wrapper (`src/app/signup/page.tsx`, `force-dynamic`) around the `SignupForm` client component. `src/lib/google-oauth.ts` is the single source of truth for Google credentials; the provider only registers when both `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are non-empty, and the form shows an inline setup card (no credentials yet → no confusing redirect).
+- Google redirect URI to authorize in Google Cloud: `http://localhost:3000/api/auth/callback/google`. After the OAuth redirect, `SocialAuthToast` (mounted on `/`) shows the success toast from `?auth=google`; OAuth errors come back to `/signup` via `errorCallbackURL` and surface as a toast.
+- Toasts use `sonner` via `@/components/ui/sonner`; `<Toaster />` is mounted in the root layout.
 
 ## UI conventions (differ from most shadcn projects)
 
