@@ -1,7 +1,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, HeartHandshake } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export default function Hero() {
   return (
@@ -45,13 +45,6 @@ export default function Hero() {
             >
               Explore Events
               <ArrowRight className="size-4" />
-            </Link>
-
-            <Link
-              href="/login"
-              className="inline-flex h-12 items-center justify-center rounded-xl border border-slate-300 bg-white/80 px-6 text-sm font-semibold text-slate-800 backdrop-blur-sm transition-colors hover:bg-white dark:border-slate-600 dark:bg-slate-900/70 dark:text-white dark:hover:bg-slate-800"
-            >
-              Get Involved
             </Link>
           </div>
         </div>

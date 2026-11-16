@@ -4,10 +4,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+
 import {
   Select,
   SelectContent,
@@ -25,16 +28,18 @@ const initialFormData = {
   thumbnail: "",
   location: "",
   eventDate: "",
-  createdBy: "",
 };
 
 export default function CreateEventPage() {
   const router = useRouter();
 
+  const { data: session, isPending: sessionLoading } =
+    authClient.useSession();
+
   const [formData, setFormData] = useState(initialFormData);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
+
+  const userEmail = session?.user?.email?.trim().toLowerCase();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -47,25 +52,31 @@ export default function CreateEventPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setMessage("");
-    setMessageType("");
 
-    if (new Date(formData.eventDate) <= new Date()) {
+    if (!userEmail) {
+      toast.error("Please login before creating an event.");
+      return;
+    }
+
+    if (formData.eventDate <= minDate) {
       toast.error("Please select a future event date.");
-      setMessage("Please select a future event date.");
-      setMessageType("error");
       return;
     }
 
     try {
       setLoading(true);
 
+      const eventData = {
+        ...formData,
+        createdBy: userEmail,
+      };
+
       const response = await fetch(`${API_URL}/add-event`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(eventData),
       });
 
       const result = await response.json();
@@ -78,28 +89,55 @@ export default function CreateEventPage() {
 
       setFormData(initialFormData);
 
-      setTimeout(() => {
-        router.push("/events");
-      }, 1000);
+      router.push("/manage-events");
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : "Something went wrong.";
+        error instanceof Error
+          ? error.message
+          : "Something went wrong.";
 
       toast.error("Failed to create event", {
         description: errorMessage,
       });
-
-      setMessage(errorMessage);
-      setMessageType("error");
     } finally {
       setLoading(false);
     }
   };
 
   const today = new Date();
+
   const minDate = `${today.getFullYear()}-${String(
     today.getMonth() + 1
   ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+  if (sessionLoading) {
+    return (
+      <main className="flex min-h-[60vh] items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </main>
+    );
+  }
+
+  if (!userEmail) {
+    return (
+      <main className="flex min-h-[60vh] items-center justify-center px-4">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Please Login</h1>
+
+          <p className="mt-2 text-muted-foreground">
+            You need to login before creating an event.
+          </p>
+
+          <Button
+            className="mt-5"
+            onClick={() => router.push("/login")}
+          >
+            Login Now
+          </Button>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-muted/40 px-4 py-12">
@@ -124,6 +162,7 @@ export default function CreateEventPage() {
         >
           <div className="space-y-2">
             <Label htmlFor="title">Event Title</Label>
+
             <Input
               id="title"
               name="title"
@@ -136,6 +175,7 @@ export default function CreateEventPage() {
 
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
+
             <Textarea
               id="description"
               name="description"
@@ -149,10 +189,14 @@ export default function CreateEventPage() {
 
           <div className="space-y-2">
             <Label htmlFor="eventType">Event Type</Label>
+
             <Select
               value={formData.eventType}
               onValueChange={(value) =>
-                setFormData({ ...formData, eventType: value ?? "" })
+                setFormData({
+                  ...formData,
+                  eventType: value ?? "",
+                })
               }
             >
               <SelectTrigger id="eventType" className="w-full">
@@ -173,6 +217,7 @@ export default function CreateEventPage() {
 
           <div className="space-y-2">
             <Label htmlFor="eventDate">Event Date</Label>
+
             <Input
               id="eventDate"
               name="eventDate"
@@ -185,7 +230,10 @@ export default function CreateEventPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="thumbnail">Thumbnail Image URL</Label>
+            <Label htmlFor="thumbnail">
+              Thumbnail Image URL
+            </Label>
+
             <Input
               id="thumbnail"
               name="thumbnail"
@@ -199,6 +247,7 @@ export default function CreateEventPage() {
 
           <div className="space-y-2">
             <Label htmlFor="location">Location</Label>
+
             <Input
               id="location"
               name="location"
@@ -211,27 +260,21 @@ export default function CreateEventPage() {
 
           <div className="space-y-2">
             <Label htmlFor="createdBy">Creator Email</Label>
+
             <Input
               id="createdBy"
-              name="createdBy"
               type="email"
-              placeholder="you@example.com"
-              value={formData.createdBy}
-              onChange={handleChange}
-              required
+              value={userEmail}
+              readOnly
+              disabled
             />
           </div>
 
-          {message && messageType === "error" && (
-            <p
-              role="alert"
-              className="text-sm font-medium text-destructive"
-            >
-              {message}
-            </p>
-          )}
-
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={loading}
+          >
             {loading ? "Creating Event..." : "Create Event"}
           </Button>
         </form>

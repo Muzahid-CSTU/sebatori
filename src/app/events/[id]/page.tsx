@@ -5,7 +5,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
 
 const API_URL = "http://localhost:8000";
 
@@ -24,8 +27,13 @@ export default function EventDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
+  const { data: session, isPending: sessionLoading } =
+    authClient.useSession();
+
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
+  const [joining, setJoining] = useState(false);
+  const [hasJoined, setHasJoined] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -61,6 +69,56 @@ export default function EventDetailsPage() {
       fetchEvent();
     }
   }, [id]);
+
+  const handleJoinEvent = async () => {
+    if (!session?.user) {
+      toast.error("Please login to join this event.");
+      router.push("/login");
+      return;
+    }
+
+    if (hasJoined || joining) return;
+
+    try {
+      setJoining(true);
+
+      const response = await fetch(`${API_URL}/events/${id}/join`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userEmail: session.user.email,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.status === 409) {
+        setHasJoined(true);
+        toast.info("You have already joined this event.");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to join event.");
+      }
+
+      setHasJoined(true);
+
+      toast.success("Successfully joined the event!", {
+        description: "You can find this event in your Joined Events.",
+      });
+    } catch (err) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong."
+      );
+    } finally {
+      setJoining(false);
+    }
+  };
 
   const formattedDate = event?.eventDate
     ? new Date(
@@ -118,6 +176,7 @@ export default function EventDetailsPage() {
 
         <article className="overflow-hidden rounded-2xl border bg-card shadow-sm">
           <div className="grid grid-cols-1 gap-5 p-4 sm:p-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-6 lg:p-6">
+
             {/* Left: Image, Tag and Title */}
             <div className="flex min-w-0 flex-col gap-4">
               <div className="relative flex min-h-[260px] items-center justify-center overflow-hidden rounded-xl bg-muted sm:min-h-[360px] lg:min-h-[400px]">
@@ -148,9 +207,10 @@ export default function EventDetailsPage() {
               </div>
             </div>
 
-            {/* Right: Other Information */}
+            {/* Right: Event Information */}
             <div className="flex min-w-0 flex-col rounded-xl bg-muted/30 p-4 sm:p-6 lg:p-7">
               <div className="space-y-5">
+
                 {/* Date */}
                 <div className="flex items-start gap-3">
                   <span className="text-xl" aria-hidden="true">
@@ -225,13 +285,14 @@ export default function EventDetailsPage() {
                 <Button
                   type="button"
                   className="mt-4 w-full"
-                  onClick={() => {
-                    alert(
-                      "Join Event will work after login and join functionality are implemented."
-                    );
-                  }}
+                  disabled={joining || sessionLoading || hasJoined}
+                  onClick={handleJoinEvent}
                 >
-                  Join Event
+                  {joining
+                    ? "Joining Event..."
+                    : hasJoined
+                      ? "Already Joined"
+                      : "Join Event"}
                 </Button>
               </section>
             </div>
