@@ -4,135 +4,125 @@ import Link from "next/link";
 import {
   ArrowUpRight,
   CalendarDays,
+  Heart,
   HeartHandshake,
   Mail,
   MapPin,
+  Users,
 } from "lucide-react";
 
-const quickLinks = [
-  { label: "Home", href: "/" },
-  { label: "Upcoming Events", href: "/events" },
-  { label: "Login", href: "/login" },
+const linkGroups = [
+  {
+    title: "Quick Links",
+    links: [
+      { name: "Home", href: "/" },
+      { name: "Upcoming Events", href: "/events" },
+      { name: "Login", href: "/login" },
+    ],
+  },
 ];
 
 export default function Footer() {
   return (
-    <footer className="border-t border-emerald-100 bg-[#E8F5EF] text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
-      <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:px-10 lg:py-16">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Brand */}
-          <div className="sm:col-span-2 lg:col-span-1">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-3"
-              aria-label="SebaTori home"
-            >
+    <footer className="border-t bg-emerald-50/70 dark:bg-card">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+
+        {/* Main Footer */}
+        <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 sm:gap-10 lg:grid-cols-4 lg:gap-12">
+
+          {/* Brand Section */}
+          <div className="sm:col-span-2 lg:col-span-2">
+            <Link href="/" className="inline-flex items-center gap-2.5">
               <Image
                 src="/logo.png"
                 alt="SebaTori logo"
-                width={48}
-                height={48}
-                className="size-11 rounded-xl object-contain"
+                width={42}
+                height={42}
+                className="size-9 object-contain sm:size-11"
               />
 
-              <span>
-                <span className="block text-xl font-extrabold tracking-tight text-emerald-700 dark:text-emerald-400">
+              <div>
+                <h2 className="text-lg font-bold leading-tight text-emerald-700 dark:text-emerald-400 sm:text-xl">
                   SebaTori
-                </span>
-                <span className="block text-[10px] font-medium tracking-[0.15em] text-slate-500 dark:text-slate-400">
-                  COMMUNITY ACTION
-                </span>
-              </span>
+                </h2>
+                <p className="text-[9px] font-medium uppercase tracking-widest text-muted-foreground">
+                  Community Action
+                </p>
+              </div>
             </Link>
 
-            <p className="mt-5 max-w-sm text-sm leading-7 text-slate-600 dark:text-slate-400">
+            <p className="mt-3 max-w-md text-xs leading-6 text-muted-foreground sm:mt-4 sm:text-sm sm:leading-7">
               Bringing people together through community events,
               volunteering, and meaningful acts of kindness.
               Together, we can create a better tomorrow.
             </p>
+
+            {/* Community Message */}
+            <div className="mt-4 flex items-center gap-2 text-xs font-medium text-emerald-700 dark:text-emerald-400 sm:mt-5 sm:text-sm">
+              <HeartHandshake className="size-4" />
+              Every act of kindness matters.
+            </div>
           </div>
 
-          {/* Quick links */}
+          {/* Quick Links */}
           <div>
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+            <h3 className="mb-3 text-sm font-bold sm:mb-4 sm:text-base">
               Quick Links
-            </h2>
+            </h3>
 
-            <ul className="mt-5 space-y-3">
-              {quickLinks.map((link) => (
-                <li key={link.href}>
+            <ul className="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-1 sm:gap-y-3">
+              {linkGroups[0].links.map((link) => (
+                <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="inline-flex items-center gap-2 text-sm transition-colors hover:text-emerald-700 dark:hover:text-emerald-400"
+                    className="group inline-flex items-center gap-2 text-xs text-muted-foreground transition-colors hover:text-primary sm:text-sm"
                   >
-                    <ArrowUpRight className="size-3.5" />
-                    {link.label}
+                    <ArrowUpRight className="size-3.5 shrink-0" />
+                    {link.name}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Community */}
+          {/* Get in Touch */}
           <div>
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white">
-              Our Community
-            </h2>
+            <h3 className="mb-3 text-sm font-bold sm:mb-4 sm:text-base">
+              Get in Touch
+            </h3>
 
-            <p className="mt-5 text-sm leading-7 text-slate-600 dark:text-slate-400">
-              Discover opportunities to volunteer, support local
-              initiatives, and make a positive impact in your community.
-            </p>
+            <div className="space-y-3 text-xs leading-5 text-muted-foreground sm:space-y-4 sm:text-sm sm:leading-6">
+              <p className="flex items-start gap-2">
+                <Mail className="mt-0.5 size-4 shrink-0 text-emerald-600" />
+                Have questions? Contact our team through the platform.
+              </p>
+
+              <p className="flex items-start gap-2">
+                <MapPin className="mt-0.5 size-4 shrink-0 text-emerald-600" />
+                Building stronger communities, together.
+              </p>
+
+              <p className="flex items-start gap-2">
+                <Heart className="mt-0.5 size-4 shrink-0 text-emerald-600" />
+                Every act of kindness matters.
+              </p>
+            </div>
 
             <Link
               href="/events"
-              className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300"
+              className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-emerald-700 transition-colors hover:text-emerald-900 dark:text-emerald-400 sm:mt-5 sm:text-sm"
             >
               <CalendarDays className="size-4" />
               Explore Events
-              <ArrowUpRight className="size-4" />
+              <ArrowUpRight className="size-3.5" />
             </Link>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white">
-              Get in Touch
-            </h2>
-
-            <ul className="mt-5 space-y-4">
-              <li className="flex items-start gap-3 text-sm leading-6">
-                <Mail className="mt-1 size-4 shrink-0 text-emerald-700 dark:text-emerald-400" />
-                <span className="text-slate-600 dark:text-slate-400">
-                  Have questions? Contact our team through the platform.
-                </span>
-              </li>
-
-              <li className="flex items-start gap-3 text-sm leading-6">
-                <MapPin className="mt-1 size-4 shrink-0 text-emerald-700 dark:text-emerald-400" />
-                <span className="text-slate-600 dark:text-slate-400">
-                  Building stronger communities, together.
-                </span>
-              </li>
-
-              <li className="flex items-start gap-3 text-sm leading-6">
-                <HeartHandshake className="mt-1 size-4 shrink-0 text-emerald-700 dark:text-emerald-400" />
-                <span className="text-slate-600 dark:text-slate-400">
-                  Every act of kindness matters.
-                </span>
-              </li>
-            </ul>
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="mt-12 flex flex-col gap-3 border-t border-emerald-200 pt-6 text-center text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:text-left dark:border-slate-700 dark:text-slate-400">
-          <p>
+        {/* Bottom Footer */}
+        <div className="mt-7 border-t border-emerald-200/70 pt-5 text-center dark:border-border sm:mt-10 sm:pt-6">
+          <p className="text-[11px] text-muted-foreground sm:text-xs">
             © {new Date().getFullYear()} SebaTori. All rights reserved.
-          </p>
-
-          <p className="flex items-center justify-center gap-1.5">
-            Made for a better community
           </p>
         </div>
       </div>

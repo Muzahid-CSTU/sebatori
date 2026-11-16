@@ -109,7 +109,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-emerald-100 bg-[#E8F5EF] dark:border-slate-700 dark:bg-slate-900">
       <nav
         aria-label="Main navigation"
-        className="mx-auto flex h-[60px] w-full max-w-7xl items-center justify-between px-3 sm:h-[68px] sm:px-6 lg:px-8"
+        className="mx-auto flex h-15 w-full max-w-7xl items-center justify-between px-3 sm:h-17 sm:px-6 lg:px-8"
       >
         {/* Brand */}
         <Link

@@ -42,15 +42,11 @@ const galleryImages = [
 
 export default function CommunityGallery() {
   return (
-    <section className="bg-muted/30 px-4 py-16 sm:px-6 lg:px-8">
+    <section className="bg-muted/30 px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         {/* Section Heading */}
         <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
-            <p className="mb-2 text-sm font-semibold uppercase tracking-widest text-primary">
-              Moments That Matter
-            </p>
-
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
               Our Community in Action
             </h2>
@@ -60,10 +56,6 @@ export default function CommunityGallery() {
               Explore moments of kindness, teamwork, and community service.
             </p>
           </div>
-
-          <span className="text-sm font-medium text-primary">
-            Together We Make a Difference
-          </span>
         </div>
 
         {/* Gallery Grid */}
@@ -93,10 +85,6 @@ export default function CommunityGallery() {
                   <h3 className="text-lg font-bold text-white">
                     {item.title}
                   </h3>
-                </div>
-
-                <div className="flex size-9 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition-colors group-hover:bg-white group-hover:text-black">
-                  <ArrowUpRight className="size-5" />
                 </div>
               </div>
             </div>
