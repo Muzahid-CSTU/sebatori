@@ -17,20 +17,25 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
+  // Password validation
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasLowercase = /[a-z]/.test(password);
+  const hasMinLength = password.length >= 6;
+
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!/[A-Z]/.test(password)) {
-      toast.error("Password must contain at least one uppercase letter.");
+    if (!hasUppercase) {
+      toast.error("Password must contain at least one uppercase letter (A-Z).");
       return;
     }
 
-    if (!/[a-z]/.test(password)) {
-      toast.error("Password must contain at least one lowercase letter.");
+    if (!hasLowercase) {
+      toast.error("Password must contain at least one lowercase letter (a-z).");
       return;
     }
 
-    if (password.length < 6) {
+    if (!hasMinLength) {
       toast.error("Password must be at least 6 characters long.");
       return;
     }
@@ -74,6 +79,21 @@ export default function SignupPage() {
     }
   };
 
+  const validationItems = [
+    {
+      valid: hasUppercase,
+      label: "At least one uppercase letter (A-Z)",
+    },
+    {
+      valid: hasLowercase,
+      label: "At least one lowercase letter (a-z)",
+    },
+    {
+      valid: hasMinLength,
+      label: "Minimum 6 characters length",
+    },
+  ];
+
   return (
     <main className="flex min-h-[80vh] items-center justify-center px-4 py-12">
       <div className="w-full max-w-md rounded-2xl border bg-background p-6 shadow-sm sm:p-8">
@@ -81,6 +101,7 @@ export default function SignupPage() {
           <h1 className="text-3xl font-bold tracking-tight">
             Create an account
           </h1>
+
           <p className="mt-2 text-sm text-muted-foreground">
             Join SebaTori and make a difference in your community.
           </p>
@@ -91,14 +112,15 @@ export default function SignupPage() {
             <label htmlFor="name" className="text-sm font-medium">
               Full Name
             </label>
+
             <input
               id="name"
               type="text"
               placeholder="Enter your full name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              required
               autoComplete="name"
+              required
               className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
             />
           </div>
@@ -107,14 +129,15 @@ export default function SignupPage() {
             <label htmlFor="email" className="text-sm font-medium">
               Email Address
             </label>
+
             <input
               id="email"
               type="email"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
               autoComplete="email"
+              required
               className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
             />
           </div>
@@ -123,13 +146,13 @@ export default function SignupPage() {
             <label htmlFor="photoURL" className="text-sm font-medium">
               Photo URL
             </label>
+
             <input
               id="photoURL"
               type="url"
               placeholder="https://example.com/photo.jpg"
               value={photoURL}
               onChange={(e) => setPhotoURL(e.target.value)}
-              autoComplete="url"
               className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
             />
           </div>
@@ -138,20 +161,36 @@ export default function SignupPage() {
             <label htmlFor="password" className="text-sm font-medium">
               Password
             </label>
+
             <input
               id="password"
               type="password"
               placeholder="Create a strong password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
               autoComplete="new-password"
+              minLength={6}
+              required
               className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
             />
-            <p className="text-xs text-muted-foreground">
-              At least 6 characters, including uppercase and lowercase letters.
-            </p>
+
+            <div className="space-y-1.5 pt-1 text-xs">
+              {validationItems.map((item) => (
+                <p
+                  key={item.label}
+                  className={`flex items-center gap-2 ${
+                    item.valid
+                      ? "text-green-600"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  <span className="text-sm">
+                    {item.valid ? "✓" : "○"}
+                  </span>
+                  {item.label}
+                </p>
+              ))}
+            </div>
           </div>
 
           <button
