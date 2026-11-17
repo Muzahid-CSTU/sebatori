@@ -8,6 +8,7 @@ import { CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EventCard from "@/components/events/event-card";
 import type { Event } from "@/components/events/event-card";
+import EventCardSkeleton from "@/components/events/event-card-skeleton";
 
 const API_URL = "http://localhost:8000";
 
@@ -71,22 +72,21 @@ export default function UpcomingEventsPage() {
             </p>
           </div>
 
-          <Button asChild={false} type="button">
+          <Button type="button">
             <Link href="/create-event">Create an Event</Link>
           </Button>
         </div>
 
-        {/* Loading */}
+        
+        {/* Loading Skeleton */}
         {loading && (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, index) => (
-              <div
-                key={index}
-                className="h-80 animate-pulse rounded-xl border bg-muted"
-              />
+              <EventCardSkeleton key={index} />
             ))}
           </div>
         )}
+
 
         {/* Error */}
         {!loading && error && (
@@ -117,7 +117,7 @@ export default function UpcomingEventsPage() {
               Be the first to organize one!
             </p>
 
-            <Button asChild={false} className="mt-6">
+            <Button className="mt-6">
               <Link href="/create-event">Create an Event</Link>
             </Button>
           </div>

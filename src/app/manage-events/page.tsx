@@ -6,6 +6,17 @@ import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import type { Event } from "@/components/events/event-card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const API_URL = "http://localhost:8000";
 
@@ -17,6 +28,9 @@ export default function ManageEventsPage() {
   const [loading, setLoading] = useState(true);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [saving, setSaving] = useState(false);
+  const [deletingEventId, setDeletingEventId] = useState<string | null>(
+    null
+  );
 
   const email = session?.user?.email?.trim().toLowerCase();
 
@@ -105,15 +119,11 @@ export default function ManageEventsPage() {
   };
 
   const handleDelete = async (eventId: string) => {
-    if (!email) return;
-
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this event?"
-    );
-
-    if (!confirmed) return;
+    if (!email || deletingEventId) return;
 
     try {
+      setDeletingEventId(eventId);
+
       const response = await fetch(
         `${API_URL}/events/${eventId}?email=${encodeURIComponent(email)}`,
         {
@@ -141,13 +151,46 @@ export default function ManageEventsPage() {
       toast.error(
         error instanceof Error ? error.message : "Delete failed"
       );
+    } finally {
+      setDeletingEventId(null);
     }
   };
 
   if (sessionLoading || loading) {
     return (
-      <main className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-muted-foreground">Loading your events...</p>
+      <main className="mx-auto min-h-screen max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+          <div className="space-y-3">
+            <div className="h-4 w-24 animate-pulse rounded bg-muted" />
+            <div className="h-8 w-48 animate-pulse rounded bg-muted" />
+            <div className="h-4 w-64 max-w-full animate-pulse rounded bg-muted" />
+          </div>
+
+          <div className="h-11 w-32 animate-pulse rounded-lg bg-muted" />
+        </div>
+
+        <div className="space-y-5">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div
+              key={index}
+              className="flex flex-col gap-4 rounded-xl border bg-card p-4 sm:flex-row sm:items-center"
+            >
+              <div className="h-40 w-full shrink-0 animate-pulse rounded-lg bg-muted sm:h-28 sm:w-40" />
+
+              <div className="min-w-0 flex-1 space-y-3">
+                <div className="h-4 w-24 animate-pulse rounded bg-muted" />
+                <div className="h-6 w-3/4 animate-pulse rounded bg-muted" />
+                <div className="h-4 w-1/2 animate-pulse rounded bg-muted" />
+                <div className="h-4 w-1/3 animate-pulse rounded bg-muted" />
+              </div>
+
+              <div className="flex gap-2 sm:shrink-0">
+                <div className="h-9 w-16 animate-pulse rounded-lg bg-muted" />
+                <div className="h-9 w-20 animate-pulse rounded-lg bg-muted" />
+              </div>
+            </div>
+          ))}
+        </div>
       </main>
     );
   }
@@ -197,7 +240,7 @@ export default function ManageEventsPage() {
       {events.length === 0 ? (
         <div className="rounded-xl border border-dashed p-8 text-center sm:p-12">
           <h2 className="text-lg font-semibold">
-            You haven't created any events yet.
+            You haven&apos;t created any events yet.
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Create your first event and bring people together.
@@ -240,18 +283,49 @@ export default function ManageEventsPage() {
 
                 <div className="flex shrink-0 gap-2">
                   <button
+                    type="button"
                     onClick={() => setEditingEvent({ ...event })}
                     className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
                   >
                     Edit
                   </button>
 
-                  <button
-                    onClick={() => handleDelete(event._id)}
-                    className="rounded-lg border border-destructive/30 px-4 py-2 text-sm font-medium text-destructive hover:bg-destructive/10"
-                  >
-                    Delete
-                  </button>
+                  <AlertDialog>
+                    <AlertDialogTrigger
+                      className="rounded-lg border border-destructive/30 px-4 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
+                    >
+                      Delete
+                    </AlertDialogTrigger>
+
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Delete this event?
+                        </AlertDialogTitle>
+
+                        <AlertDialogDescription>
+                          Are you sure you want to delete &quot;
+                          {event.title}&quot;? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>
+                          Cancel
+                        </AlertDialogCancel>
+
+                        <AlertDialogAction
+                          disabled={deletingEventId !== null}
+                          onClick={() => handleDelete(event._id)}
+                          className="bg-destructive text-white hover:bg-destructive/90"
+                        >
+                          {deletingEventId === event._id
+                            ? "Deleting..."
+                            : "Delete Event"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </div>
 
@@ -339,6 +413,7 @@ export default function ManageEventsPage() {
                       <input
                         required
                         type="date"
+                        min={new Date().toISOString().slice(0, 10)}
                         value={editingEvent.eventDate.slice(0, 10)}
                         onChange={(e) =>
                           setEditingEvent({

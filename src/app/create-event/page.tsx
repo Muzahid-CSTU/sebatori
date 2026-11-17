@@ -110,10 +110,37 @@ export default function CreateEventPage() {
     today.getMonth() + 1
   ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
+  
   if (sessionLoading) {
     return (
-      <main className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
+      <main className="min-h-screen bg-muted/40 px-4 py-12">
+        <div className="mx-auto max-w-3xl">
+          {/* Header Skeleton */}
+          <div className="mb-8 space-y-3 text-center">
+            <div className="mx-auto h-4 w-40 animate-pulse rounded bg-muted" />
+            <div className="mx-auto h-9 w-56 max-w-full animate-pulse rounded bg-muted sm:h-10 sm:w-72" />
+            <div className="mx-auto h-4 w-full max-w-md animate-pulse rounded bg-muted" />
+          </div>
+
+          {/* Form Skeleton */}
+          <div className="space-y-6 rounded-xl border bg-card p-5 shadow-sm sm:p-8">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="space-y-2">
+                <div className="h-4 w-28 animate-pulse rounded bg-muted" />
+                <div className="h-10 w-full animate-pulse rounded-md bg-muted" />
+              </div>
+            ))}
+
+            {/* Creator Email */}
+            <div className="space-y-2">
+              <div className="h-4 w-28 animate-pulse rounded bg-muted" />
+              <div className="h-10 w-full animate-pulse rounded-md bg-muted" />
+            </div>
+
+            {/* Submit Button */}
+            <div className="h-10 w-full animate-pulse rounded-md bg-muted" />
+          </div>
+        </div>
       </main>
     );
   }

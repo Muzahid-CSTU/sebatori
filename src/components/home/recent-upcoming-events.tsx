@@ -7,6 +7,7 @@ import { ArrowRight } from "lucide-react";
 
 import EventCard from "@/components/events/event-card";
 import type { Event } from "@/components/events/event-card";
+import EventCardSkeleton from "@/components/events/event-card-skeleton";
 
 const API_URL = "http://localhost:8000";
 
@@ -66,14 +67,11 @@ export default function RecentUpcomingEvents() {
           </Link>
         </div>
 
-        {/* Loading State */}
+        {/* Loading Skeleton */}
         {loading && (
           <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, index) => (
-              <div
-                key={index}
-                className="h-64 animate-pulse rounded-xl border bg-muted sm:h-96"
-              />
+              <EventCardSkeleton key={index} />
             ))}
           </div>
         )}

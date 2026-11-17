@@ -56,12 +56,6 @@ export default function Footer() {
               volunteering, and meaningful acts of kindness.
               Together, we can create a better tomorrow.
             </p>
-
-            {/* Community Message */}
-            <div className="mt-4 flex items-center gap-2 text-xs font-medium text-emerald-700 dark:text-emerald-400 sm:mt-5 sm:text-sm">
-              <HeartHandshake className="size-4" />
-              Every act of kindness matters.
-            </div>
           </div>
 
           {/* Quick Links */}
@@ -107,15 +101,6 @@ export default function Footer() {
                 Every act of kindness matters.
               </p>
             </div>
-
-            <Link
-              href="/events"
-              className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-emerald-700 transition-colors hover:text-emerald-900 dark:text-emerald-400 sm:mt-5 sm:text-sm"
-            >
-              <CalendarDays className="size-4" />
-              Explore Events
-              <ArrowUpRight className="size-3.5" />
-            </Link>
           </div>
         </div>
 

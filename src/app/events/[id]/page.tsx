@@ -131,12 +131,76 @@ export default function EventDetailsPage() {
       })
     : "Date not available";
 
+    
   if (loading) {
     return (
-      <main className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-muted-foreground">
-          Loading event details...
-        </p>
+      <main className="min-h-screen bg-muted/30 px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl">
+          {/* Back Link Skeleton */}
+          <div className="mb-5 h-4 w-48 animate-pulse rounded bg-muted" />
+
+          <article className="overflow-hidden rounded-2xl border bg-card shadow-sm">
+            <div className="grid grid-cols-1 gap-5 p-4 sm:p-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-6 lg:p-6">
+              {/* Left: Image and Title Skeleton */}
+              <div className="flex min-w-0 flex-col gap-4">
+                <div className="min-h-[260px] animate-pulse rounded-xl bg-muted sm:min-h-[360px] lg:min-h-[400px]" />
+
+                <div className="space-y-3 pb-2">
+                  <div className="h-6 w-24 animate-pulse rounded-full bg-muted" />
+                  <div className="h-8 w-4/5 animate-pulse rounded bg-muted" />
+                  <div className="h-5 w-3/5 animate-pulse rounded bg-muted" />
+                </div>
+              </div>
+
+              {/* Right: Event Information Skeleton */}
+              <div className="flex min-w-0 flex-col rounded-xl bg-muted/30 p-4 sm:p-6 lg:p-7">
+                <div className="space-y-6">
+                  {/* Date */}
+                  <div className="flex gap-3">
+                    <div className="size-6 shrink-0 animate-pulse rounded bg-muted" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 w-24 animate-pulse rounded bg-muted" />
+                      <div className="h-5 w-4/5 animate-pulse rounded bg-muted" />
+                    </div>
+                  </div>
+
+                  {/* Location */}
+                  <div className="flex gap-3">
+                    <div className="size-6 shrink-0 animate-pulse rounded bg-muted" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 w-20 animate-pulse rounded bg-muted" />
+                      <div className="h-5 w-3/4 animate-pulse rounded bg-muted" />
+                    </div>
+                  </div>
+
+                  {/* Organizer */}
+                  <div className="flex gap-3">
+                    <div className="size-6 shrink-0 animate-pulse rounded bg-muted" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 w-28 animate-pulse rounded bg-muted" />
+                      <div className="h-5 w-full animate-pulse rounded bg-muted" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Description Skeleton */}
+                <div className="mt-6 space-y-3 border-t pt-5">
+                  <div className="h-6 w-40 animate-pulse rounded bg-muted" />
+                  <div className="h-4 w-full animate-pulse rounded bg-muted" />
+                  <div className="h-4 w-11/12 animate-pulse rounded bg-muted" />
+                  <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
+                </div>
+
+                {/* Join Button Skeleton */}
+                <div className="mt-6 space-y-3 border-t pt-5 lg:mt-auto lg:pt-6">
+                  <div className="h-6 w-48 animate-pulse rounded bg-muted" />
+                  <div className="h-4 w-full animate-pulse rounded bg-muted" />
+                  <div className="h-11 w-full animate-pulse rounded-lg bg-muted" />
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
       </main>
     );
   }
