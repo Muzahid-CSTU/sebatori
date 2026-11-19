@@ -112,12 +112,12 @@ export default function UpcomingEventsPage() {
             </p>
           </div>
 
-          <Button asChild className="shrink-0">
-            <Link href="/create-event">
+          <Link href="/create-event">
+            <Button className="shrink-0">
               <CalendarDays className="mr-2 size-4" />
               Create Event
-            </Link>
-          </Button>
+            </Button>
+          </Link>
         </div>
 
         {/* Category Filter and Search */}
@@ -222,9 +222,11 @@ export default function UpcomingEventsPage() {
             )}
 
             <div>
-              <Button asChild className="mt-6">
-                <Link href="/create-event">Create an Event</Link>
-              </Button>
+              <Link href="/create-event">
+                <Button className="mt-6">
+                  Create an Event
+                </Button>
+              </Link>
             </div>
           </div>
         )}
