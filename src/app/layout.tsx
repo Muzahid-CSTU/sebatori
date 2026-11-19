@@ -27,12 +27,6 @@ export const metadata: Metadata = {
     "Discover community service events, connect with volunteers, and create positive social change with SebaTori.",
   applicationName: "SebaTori",
 
-  icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
-    apple: "/logo.png",
-  },
-
   openGraph: {
     title: "SebaTori | Serve Together",
     description:
