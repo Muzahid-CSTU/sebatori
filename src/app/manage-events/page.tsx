@@ -17,7 +17,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-const API_URL = "process.env.NEXT_PUBLIC_API_URL";
+const API_URL = "https://sebatori-server.vercel.app";
 
 export default function ManageEventsPage() {
   const { data: session, isPending: sessionLoading } =

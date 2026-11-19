@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const API_URL = "process.env.NEXT_PUBLIC_API_URL";
+const API_URL = "https://sebatori-server.vercel.app";
 
 const initialFormData = {
   title: "",

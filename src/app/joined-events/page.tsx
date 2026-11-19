@@ -6,7 +6,7 @@ import { authClient } from "@/lib/auth-client";
 import { Event } from "@/components/events/event-card";
 import EventCard from "@/components/events/event-card";
 
-const API_URL = "process.env.NEXT_PUBLIC_API_URL";
+const API_URL = "https://sebatori-server.vercel.app";
 
 export default function JoinedEventsPage() {
   const { data: session, isPending: sessionLoading } =

@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 
-const API_URL = "process.env.NEXT_PUBLIC_API_URL";
+const API_URL = "https://sebatori-server.vercel.app";
 
 type Event = {
   _id: string;
