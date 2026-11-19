@@ -34,9 +34,13 @@ export default function EventDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
   const [hasJoined, setHasJoined] = useState(false);
+  const [checkingJoined, setCheckingJoined] = useState(true);
   const [error, setError] = useState("");
 
+  // Fetch public event details
   useEffect(() => {
+    let cancelled = false;
+
     const fetchEvent = async () => {
       try {
         setLoading(true);
@@ -53,44 +57,152 @@ export default function EventDetailsPage() {
         }
 
         const data: Event = await response.json();
-        setEvent(data);
+
+        if (!cancelled) {
+          setEvent(data);
+        }
       } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Something went wrong."
-        );
+        if (!cancelled) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Something went wrong."
+          );
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     if (id) {
       fetchEvent();
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
+  // Check whether the logged-in user has already joined this event
+  useEffect(() => {
+    if (sessionLoading) return;
+
+    let cancelled = false;
+
+    const checkJoinedStatus = async () => {
+      if (!session?.user) {
+        setHasJoined(false);
+        setCheckingJoined(false);
+        return;
+      }
+
+      try {
+        setCheckingJoined(true);
+
+        const {
+          data: tokenData,
+          error: tokenError,
+        } = await authClient.token();
+
+        if (tokenError || !tokenData?.token) {
+          throw new Error(
+            "Unable to get authentication token."
+          );
+        }
+
+        const response = await fetch(
+          `${API_URL}/joined-events`,
+          {
+            headers: {
+              Authorization: `Bearer ${tokenData.token}`,
+            },
+          }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            result.message ||
+              result.msg ||
+              "Failed to check joined status."
+          );
+        }
+
+        if (!Array.isArray(result)) {
+          throw new Error("Invalid joined events response.");
+        }
+
+        if (!cancelled) {
+          const alreadyJoined = result.some(
+            (joinedEvent: Event) =>
+              String(joinedEvent._id) === String(id)
+          );
+
+          setHasJoined(alreadyJoined);
+        }
+      } catch (err) {
+        console.error("Check joined status error:", err);
+
+        if (!cancelled) {
+          setHasJoined(false);
+
+          toast.error(
+            "Could not verify your join status. Please refresh the page."
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setCheckingJoined(false);
+        }
+      }
+    };
+
+    checkJoinedStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, session?.user?.email, sessionLoading]);
+
+  // Join event using JWT authentication
   const handleJoinEvent = async () => {
+    if (sessionLoading || checkingJoined || joining) return;
+
     if (!session?.user) {
       toast.error("Please login to join this event.");
       router.push("/login");
       return;
     }
 
-    if (hasJoined || joining) return;
+    if (hasJoined) return;
 
     try {
       setJoining(true);
 
-      const response = await fetch(`${API_URL}/events/${id}/join`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userEmail: session.user.email,
-        }),
-      });
+      const {
+        data: tokenData,
+        error: tokenError,
+      } = await authClient.token();
+
+      if (tokenError || !tokenData?.token) {
+        throw new Error(
+          "Unable to get authentication token. Please log in again."
+        );
+      }
+
+      const response = await fetch(
+        `${API_URL}/events/${id}/join`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${tokenData.token}`,
+          },
+        }
+      );
 
       const result = await response.json();
 
@@ -101,13 +213,18 @@ export default function EventDetailsPage() {
       }
 
       if (!response.ok) {
-        throw new Error(result.message || "Failed to join event.");
+        throw new Error(
+          result.message ||
+            result.msg ||
+            "Failed to join event."
+        );
       }
 
       setHasJoined(true);
 
       toast.success("Successfully joined the event!", {
-        description: "You can find this event in your Joined Events.",
+        description:
+          "You can find this event in your Joined Events.",
       });
     } catch (err) {
       toast.error(
@@ -131,17 +248,15 @@ export default function EventDetailsPage() {
       })
     : "Date not available";
 
-    
+  // Loading skeleton
   if (loading) {
     return (
       <main className="min-h-screen bg-muted/30 px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
-          {/* Back Link Skeleton */}
           <div className="mb-5 h-4 w-48 animate-pulse rounded bg-muted" />
 
           <article className="overflow-hidden rounded-2xl border bg-card shadow-sm">
             <div className="grid grid-cols-1 gap-5 p-4 sm:p-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-6 lg:p-6">
-              {/* Left: Image and Title Skeleton */}
               <div className="flex min-w-0 flex-col gap-4">
                 <div className="min-h-[260px] animate-pulse rounded-xl bg-muted sm:min-h-[360px] lg:min-h-[400px]" />
 
@@ -152,10 +267,8 @@ export default function EventDetailsPage() {
                 </div>
               </div>
 
-              {/* Right: Event Information Skeleton */}
               <div className="flex min-w-0 flex-col rounded-xl bg-muted/30 p-4 sm:p-6 lg:p-7">
                 <div className="space-y-6">
-                  {/* Date */}
                   <div className="flex gap-3">
                     <div className="size-6 shrink-0 animate-pulse rounded bg-muted" />
                     <div className="flex-1 space-y-2">
@@ -164,7 +277,6 @@ export default function EventDetailsPage() {
                     </div>
                   </div>
 
-                  {/* Location */}
                   <div className="flex gap-3">
                     <div className="size-6 shrink-0 animate-pulse rounded bg-muted" />
                     <div className="flex-1 space-y-2">
@@ -173,7 +285,6 @@ export default function EventDetailsPage() {
                     </div>
                   </div>
 
-                  {/* Organizer */}
                   <div className="flex gap-3">
                     <div className="size-6 shrink-0 animate-pulse rounded bg-muted" />
                     <div className="flex-1 space-y-2">
@@ -183,7 +294,6 @@ export default function EventDetailsPage() {
                   </div>
                 </div>
 
-                {/* Description Skeleton */}
                 <div className="mt-6 space-y-3 border-t pt-5">
                   <div className="h-6 w-40 animate-pulse rounded bg-muted" />
                   <div className="h-4 w-full animate-pulse rounded bg-muted" />
@@ -191,7 +301,6 @@ export default function EventDetailsPage() {
                   <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
                 </div>
 
-                {/* Join Button Skeleton */}
                 <div className="mt-6 space-y-3 border-t pt-5 lg:mt-auto lg:pt-6">
                   <div className="h-6 w-48 animate-pulse rounded bg-muted" />
                   <div className="h-4 w-full animate-pulse rounded bg-muted" />
@@ -205,6 +314,7 @@ export default function EventDetailsPage() {
     );
   }
 
+  // Error state
   if (error || !event) {
     return (
       <main className="flex min-h-[60vh] items-center justify-center px-4">
@@ -240,7 +350,6 @@ export default function EventDetailsPage() {
 
         <article className="overflow-hidden rounded-2xl border bg-card shadow-sm">
           <div className="grid grid-cols-1 gap-5 p-4 sm:p-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-6 lg:p-6">
-
             {/* Left: Image, Tag and Title */}
             <div className="flex min-w-0 flex-col gap-4">
               <div className="relative flex min-h-[260px] items-center justify-center overflow-hidden rounded-xl bg-muted sm:min-h-[360px] lg:min-h-[400px]">
@@ -274,7 +383,6 @@ export default function EventDetailsPage() {
             {/* Right: Event Information */}
             <div className="flex min-w-0 flex-col rounded-xl bg-muted/30 p-4 sm:p-6 lg:p-7">
               <div className="space-y-5">
-
                 {/* Date */}
                 <div className="flex items-start gap-3">
                   <span className="text-xl" aria-hidden="true">
@@ -349,14 +457,21 @@ export default function EventDetailsPage() {
                 <Button
                   type="button"
                   className="mt-4 w-full"
-                  disabled={joining || sessionLoading || hasJoined}
+                  disabled={
+                    joining ||
+                    sessionLoading ||
+                    checkingJoined ||
+                    hasJoined
+                  }
                   onClick={handleJoinEvent}
                 >
-                  {joining
-                    ? "Joining Event..."
-                    : hasJoined
-                      ? "Already Joined"
-                      : "Join Event"}
+                  {checkingJoined
+                    ? "Checking Status..."
+                    : joining
+                      ? "Joining Event..."
+                      : hasJoined
+                        ? "Already Joined"
+                        : "Join Event"}
                 </Button>
               </section>
             </div>

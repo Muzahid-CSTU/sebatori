@@ -34,6 +34,7 @@ export default function ManageEventsPage() {
 
   const email = session?.user?.email?.trim().toLowerCase();
 
+  // Fetch only the logged-in user's events
   useEffect(() => {
     if (sessionLoading) return;
 
@@ -46,19 +47,37 @@ export default function ManageEventsPage() {
       try {
         setLoading(true);
 
-        const response = await fetch(
-          `${API_URL}/my-events?email=${encodeURIComponent(email)}`
-        );
+        const { data: tokenData, error: tokenError } =
+          await authClient.token();
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch your events");
+        if (tokenError || !tokenData?.token) {
+          throw new Error(
+            "Unable to get authentication token. Please log in again."
+          );
         }
 
-        const data = await response.json();
-        setEvents(data);
+        const response = await fetch(`${API_URL}/my-events`, {
+          headers: {
+            Authorization: `Bearer ${tokenData.token}`,
+          },
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            result.message || result.msg || "Failed to fetch your events."
+          );
+        }
+
+        setEvents(result);
       } catch (error) {
-        console.error(error);
-        toast.error("Could not load your events.");
+        console.error("Fetch events error:", error);
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : "Could not load your events."
+        );
       } finally {
         setLoading(false);
       }
@@ -67,6 +86,7 @@ export default function ManageEventsPage() {
     fetchMyEvents();
   }, [email, sessionLoading]);
 
+  // Update event
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -75,15 +95,24 @@ export default function ManageEventsPage() {
     try {
       setSaving(true);
 
+      const { data: tokenData, error: tokenError } =
+        await authClient.token();
+
+      if (tokenError || !tokenData?.token) {
+        throw new Error(
+          "Unable to get authentication token. Please log in again."
+        );
+      }
+
       const response = await fetch(
         `${API_URL}/events/${editingEvent._id}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${tokenData.token}`,
           },
           body: JSON.stringify({
-            userEmail: email,
             title: editingEvent.title,
             description: editingEvent.description,
             eventType: editingEvent.eventType,
@@ -97,7 +126,9 @@ export default function ManageEventsPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || "Failed to update event");
+        throw new Error(
+          result.message || result.msg || "Failed to update event."
+        );
       }
 
       setEvents((previousEvents) =>
@@ -109,32 +140,44 @@ export default function ManageEventsPage() {
       setEditingEvent(null);
       toast.success("Event updated successfully!");
     } catch (error) {
-      console.error(error);
+      console.error("Update event error:", error);
       toast.error(
-        error instanceof Error ? error.message : "Update failed"
+        error instanceof Error ? error.message : "Update failed."
       );
     } finally {
       setSaving(false);
     }
   };
 
+  // Delete event
   const handleDelete = async (eventId: string) => {
     if (!email || deletingEventId) return;
 
     try {
       setDeletingEventId(eventId);
 
-      const response = await fetch(
-        `${API_URL}/events/${eventId}?email=${encodeURIComponent(email)}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const { data: tokenData, error: tokenError } =
+        await authClient.token();
+
+      if (tokenError || !tokenData?.token) {
+        throw new Error(
+          "Unable to get authentication token. Please log in again."
+        );
+      }
+
+      const response = await fetch(`${API_URL}/events/${eventId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${tokenData.token}`,
+        },
+      });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || "Failed to delete event");
+        throw new Error(
+          result.message || result.msg || "Failed to delete event."
+        );
       }
 
       setEvents((previousEvents) =>
@@ -147,15 +190,16 @@ export default function ManageEventsPage() {
 
       toast.success("Event deleted successfully!");
     } catch (error) {
-      console.error(error);
+      console.error("Delete event error:", error);
       toast.error(
-        error instanceof Error ? error.message : "Delete failed"
+        error instanceof Error ? error.message : "Delete failed."
       );
     } finally {
       setDeletingEventId(null);
     }
   };
 
+  // Loading skeleton
   if (sessionLoading || loading) {
     return (
       <main className="mx-auto min-h-screen max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -195,14 +239,17 @@ export default function ManageEventsPage() {
     );
   }
 
+  // Login required
   if (!email) {
     return (
       <main className="flex min-h-[60vh] items-center justify-center px-4">
         <div className="text-center">
           <h1 className="text-2xl font-bold">Please Login</h1>
+
           <p className="mt-2 text-muted-foreground">
             Login to manage your events.
           </p>
+
           <Link
             href="/login"
             className="mt-5 inline-block rounded-lg bg-primary px-6 py-3 text-primary-foreground"
@@ -221,9 +268,11 @@ export default function ManageEventsPage() {
           <p className="text-sm font-semibold uppercase tracking-wider text-primary">
             Dashboard
           </p>
+
           <h1 className="mt-2 text-2xl font-bold sm:text-3xl">
             Manage Events
           </h1>
+
           <p className="mt-2 text-sm text-muted-foreground">
             Manage the events you have created.
           </p>
@@ -242,9 +291,11 @@ export default function ManageEventsPage() {
           <h2 className="text-lg font-semibold">
             You haven&apos;t created any events yet.
           </h2>
+
           <p className="mt-2 text-sm text-muted-foreground">
             Create your first event and bring people together.
           </p>
+
           <Link
             href="/create-event"
             className="mt-5 inline-block rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground"
@@ -270,12 +321,15 @@ export default function ManageEventsPage() {
                   <p className="text-xs font-medium text-primary">
                     {event.eventType}
                   </p>
+
                   <h2 className="mt-1 text-lg font-semibold">
                     {event.title}
                   </h2>
+
                   <p className="mt-1 text-sm text-muted-foreground">
                     {event.location}
                   </p>
+
                   <p className="mt-1 text-sm text-muted-foreground">
                     {event.eventDate}
                   </p>
@@ -340,6 +394,7 @@ export default function ManageEventsPage() {
                     <label className="mb-1 block text-sm font-medium">
                       Event Title
                     </label>
+
                     <input
                       required
                       value={editingEvent.title}
@@ -357,6 +412,7 @@ export default function ManageEventsPage() {
                     <label className="mb-1 block text-sm font-medium">
                       Description
                     </label>
+
                     <textarea
                       required
                       rows={4}
@@ -376,6 +432,7 @@ export default function ManageEventsPage() {
                       <label className="mb-1 block text-sm font-medium">
                         Event Type
                       </label>
+
                       <input
                         required
                         value={editingEvent.eventType}
@@ -393,6 +450,7 @@ export default function ManageEventsPage() {
                       <label className="mb-1 block text-sm font-medium">
                         Location
                       </label>
+
                       <input
                         required
                         value={editingEvent.location}
@@ -410,6 +468,7 @@ export default function ManageEventsPage() {
                       <label className="mb-1 block text-sm font-medium">
                         Event Date
                       </label>
+
                       <input
                         required
                         type="date"
@@ -429,6 +488,7 @@ export default function ManageEventsPage() {
                       <label className="mb-1 block text-sm font-medium">
                         Thumbnail URL
                       </label>
+
                       <input
                         required
                         type="url"

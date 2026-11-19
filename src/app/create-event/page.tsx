@@ -66,15 +66,23 @@ export default function CreateEventPage() {
     try {
       setLoading(true);
 
+      const { data: tokenData, error: tokenError } = await authClient.token();
+
+      if (tokenError || !tokenData?.token) {
+        throw new Error("Unable to get JWT token. Please log in again.");
+      }
+
+      const jwtToken = tokenData.token;
+
       const eventData = {
         ...formData,
-        createdBy: userEmail,
       };
 
       const response = await fetch(`${API_URL}/add-event`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${jwtToken}`
         },
         body: JSON.stringify(eventData),
       });
@@ -82,7 +90,9 @@ export default function CreateEventPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || "Failed to create event.");
+        throw new Error(
+          result.message || result.msg || "Failed to create event."
+        );
       }
 
       toast.success("Event created successfully!");

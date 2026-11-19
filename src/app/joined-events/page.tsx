@@ -7,6 +7,8 @@ import { authClient } from "@/lib/auth-client";
 import { Event } from "@/components/events/event-card";
 import EventCard from "@/components/events/event-card";
 
+const API_URL = "http://localhost:8000";
+
 export default function JoinedEventsPage() {
   const { data: session, isPending: sessionLoading } =
     authClient.useSession();
@@ -15,10 +17,12 @@ export default function JoinedEventsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const email = session?.user?.email?.trim().toLowerCase();
+
   useEffect(() => {
     if (sessionLoading) return;
 
-    if (!session?.user?.email) {
+    if (!email) {
       setLoading(false);
       return;
     }
@@ -28,28 +32,47 @@ export default function JoinedEventsPage() {
         setLoading(true);
         setError("");
 
-        const response = await fetch(
-          `http://localhost:8000/joined-events?email=${encodeURIComponent(
-            session.user.email
-          )}`
-        );
+        const { data: tokenData, error: tokenError } =
+          await authClient.token();
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch joined events");
+        if (tokenError || !tokenData?.token) {
+          throw new Error(
+            "Unable to get authentication token. Please log in again."
+          );
         }
 
-        const data = await response.json();
-        setEvents(data);
+        const response = await fetch(`${API_URL}/joined-events`, {
+          headers: {
+            Authorization: `Bearer ${tokenData.token}`,
+          },
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            result.message ||
+              result.msg ||
+              "Failed to fetch joined events."
+          );
+        }
+
+        setEvents(result);
       } catch (err) {
-        console.error(err);
-        setError("Could not load your joined events.");
+        console.error("Fetch joined events error:", err);
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Could not load your joined events."
+        );
       } finally {
         setLoading(false);
       }
     };
 
     fetchJoinedEvents();
-  }, [session, sessionLoading]);
+  }, [email, sessionLoading]);
 
   if (sessionLoading || loading) {
     return (
@@ -61,14 +84,16 @@ export default function JoinedEventsPage() {
     );
   }
 
-  if (!session?.user?.email) {
+  if (!email) {
     return (
       <main className="flex min-h-[60vh] items-center justify-center px-4">
         <div className="text-center">
           <h1 className="text-2xl font-bold">Please Login</h1>
+
           <p className="mt-2 text-muted-foreground">
             Login to see the events you have joined.
           </p>
+
           <Link
             href="/login"
             className="mt-5 inline-block rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground"
@@ -103,7 +128,7 @@ export default function JoinedEventsPage() {
       ) : events.length === 0 ? (
         <div className="rounded-xl border border-dashed p-8 text-center sm:p-12">
           <h2 className="text-lg font-semibold">
-            You haven't joined any events yet.
+            You haven&apos;t joined any events yet.
           </h2>
 
           <p className="mt-2 text-sm text-muted-foreground">
