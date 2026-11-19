@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
@@ -19,18 +18,39 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://sebatori.vercel.app"),
+
   title: {
     default: "SebaTori | Serve Together",
     template: "%s | SebaTori",
   },
+
   description:
     "Discover community service events, connect with volunteers, and create positive social change with SebaTori.",
+
   applicationName: "SebaTori",
+
   openGraph: {
     title: "SebaTori | Serve Together",
     description:
       "Discover community events and work together to create lasting change.",
+    url: "https://sebatori.vercel.app",
+    siteName: "SebaTori",
     type: "website",
+    images: [
+      {
+        url: "/logo.png",
+        alt: "SebaTori | Serve Together",
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "SebaTori | Serve Together",
+    description:
+      "Discover community events and work together to create lasting change.",
+    images: ["/logo.png"],
   },
 };
 
