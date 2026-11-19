@@ -4,11 +4,11 @@ SebaTori is a community-driven event management platform that connects people wi
 
 # Live Website
 
-## Live Site: [Add your deployed website URL]
+## Live Site: https://sebatori.vercel.app/
 
-## Client Repository: [Add your client GitHub repository URL]
+## Client Repository: https://github.com/Muzahid-CSTU/sebatori
 
-## Server Repository: [Add your server GitHub repository URL]
+## Server Repository: https://github.com/Muzahid-CSTU/sebatori-Server
 
 ## Key Features
 
