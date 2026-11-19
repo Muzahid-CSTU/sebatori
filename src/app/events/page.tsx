@@ -10,7 +10,7 @@ import EventCard from "@/components/events/event-card";
 import type { Event } from "@/components/events/event-card";
 import EventCardSkeleton from "@/components/events/event-card-skeleton";
 
-const API_URL = "http://localhost:8000";
+const API_URL = "https://sebatori-server.vercel.app";
 
 export default function UpcomingEventsPage() {
   const [events, setEvents] = useState<Event[]>([]);

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -18,7 +17,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-const API_URL = "http://localhost:8000";
+const API_URL = "https://sebatori-server.vercel.app";
 
 export default function ManageEventsPage() {
   const { data: session, isPending: sessionLoading } =

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -7,7 +6,7 @@ import { authClient } from "@/lib/auth-client";
 import { Event } from "@/components/events/event-card";
 import EventCard from "@/components/events/event-card";
 
-const API_URL = "http://localhost:8000";
+const API_URL = "https://sebatori-server.vercel.app";
 
 export default function JoinedEventsPage() {
   const { data: session, isPending: sessionLoading } =

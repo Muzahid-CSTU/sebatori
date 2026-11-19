@@ -1,8 +1,8 @@
-## SebaTori — Social Development Events Platform
+# SebaTori — Social Development Events Platform
 
 SebaTori is a community-driven event management platform that connects people with social service activities in their local communities. Users can discover upcoming events, create events, join community initiatives, and manage their own activities.
 
-## 🌐 Live Website
+# Live Website
 
 ## Live Site: [Add your deployed website URL]
 
@@ -36,9 +36,9 @@ Loading States: Skeleton loaders improve the user experience while data is loadi
 
 Community Gallery: Display community service activities and initiatives.
 
-## Technology Stack
+# Technology Stack
 
-# Frontend
+## Frontend
 
 Next.js (App Router)
 
@@ -56,7 +56,7 @@ Sonner
 
 Better Auth Client
 
-# Backend
+## Backend
 
 Node.js
 
