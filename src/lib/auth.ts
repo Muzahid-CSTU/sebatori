@@ -14,12 +14,10 @@ const globalForMongo = globalThis as typeof globalThis & {
   mongoClient?: MongoClient;
 };
 
-const client =
+export const client =
   globalForMongo.mongoClient ?? new MongoClient(uri);
 
-if (process.env.NODE_ENV !== "production") {
-  globalForMongo.mongoClient = client;
-}
+globalForMongo.mongoClient = client;
 
 const db = client.db("sebatori");
 
